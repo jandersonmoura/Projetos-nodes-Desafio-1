@@ -57,7 +57,7 @@ app.get('/order/:id', (request, response) => {
 
 })
 
-app.patch('/order/:id', (request, response) => {
+app.patch('/orders/:id', (request, response) => {
     const { id } = request.params
     const index = orders.findIndex(order => order.id === id)
     if (index < 0) {
