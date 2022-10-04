@@ -1,0 +1,21 @@
+app.post('/order',(request,response)=>{
+    const ped = request.body
+    ped.id=uuid.v4()
+    orders.push(ped)
+
+    return response.json(ped);
+})
+
+const index =orders.findIndex(order => order.id === id)
+    if(ped.clientName != null){
+        orders[index].clientName = ped.clientName
+    }
+    if(ped.order != null){
+        orders[index].order = ped.order
+    }
+    if(ped.price != null){
+        orders[index].price = ped.price
+    }
+    if(ped.status != null){
+        orders[index].status = ped.status
+    }
