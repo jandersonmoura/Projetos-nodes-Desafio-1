@@ -1,3 +1,4 @@
+
 const express = require('express')
 const uuid = require('uuid')
 
@@ -5,6 +6,26 @@ const port = 3000
 const app = express()
 const orders = []
 app.use(express.json())
+
+
+const logRequest = (request, response, next) => {
+    console.log(`Request [${request.method}] ${request.url}`)
+    next()
+}
+
+app.use(logRequest)
+
+const getOrderId = (request,response,next)=>{
+    const {id}= request.params
+    const index = orders.findIndex(order => order.id === id)
+    if (index < 0) {
+        return response.status(404).json({ message: 'order Not Found' })
+    }
+    request.orderIndex = index
+    request.orderId = id
+
+    next()
+}
 
 app.get('/order', (request, response) => {
     return response.json(orders)
@@ -19,51 +40,31 @@ app.post('/order', (request, response) => {
     return response.status(201).json(ped);
 })
 
-app.put('/order/:id', (request, response) => {
-    const { id } = request.params
+app.put('/order/:id', getOrderId , (request, response) => {
+    
     const { order, clientName, price, status } = request.body
-    const ped = { id, order, clientName, price, status }
-    const index = orders.findIndex(order => order.id === id)
-    if (index < 0) {
-        return response.status(404).json({ message: 'order Not Found' })
-    }
-    orders[index] = ped
+    const ped = { id:request.orderId, order, clientName, price, status }
+ 
+    orders[request.orderIndex] = ped
 
     return response.status(201).json(ped)
 })
 
-app.delete('/order/:id', (request, response) => {
-    const { id } = request.params
-    const index = orders.findIndex(order => order.id === id)
-    if (index < 0) {
-        return response.status(404).json({ message: 'order Not Found' })
-    }
-    orders.splice(index, 1)
+app.delete('/order/:id', getOrderId , (request, response) => {
+  
+    orders.splice(request.orderIndex, 1)
 
     return response.status(202).json()
 })
 
-app.get('/order/:id', (request, response) => {
-    const { id } = request.params
-    
-    const index = orders.findIndex(order => order.id === id)
-    if (index < 0) {
-        return response.status(404).json({ message: 'order Not Found' })
-    }
-    
+app.get('/order/:id', getOrderId , (request, response) => {    
 
-    return response.json(orders[index])
-
-
+    return response.json(orders[request.orderIndex])
 })
 
-app.patch('/orders/:id', (request, response) => {
-    const { id } = request.params
-    const index = orders.findIndex(order => order.id === id)
-    if (index < 0) {
-        return response.status(404).json({ message: 'order Not Found' })
-    }
-    orders[index].status="Pronto"
+app.patch('/order/:id', getOrderId , (request, response) => {
+  
+    orders[request.orderIndex].status="Pronto"
 
     return response.status(202).json()
 })
